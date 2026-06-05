@@ -21,7 +21,7 @@
 
 ### 📈 История изменений:
 Все обновления и правки кода можно отследить в разделе коммитов:
-👉 **[Просмотреть изменения](https://github.com/AlbeePython/ZAPL-Recorder/releases)**
+👉 **[Просмотреть изменения](https://github.com/AlbeePython/ZAPL-Recorder/commits/main/)**
 
 ---
 
