@@ -1,3 +1,5 @@
+# [ПРОЩАНИЯ!](https://github.com/AlbeePython/ZAPL-Recorder/blob/main/bye.md)
+
 # 🎥 ZAPL Recorder
 
 Ультра-легкая программа для записи экрана и стриминга, оптимизированная специально для слабых ПК (AMD A-серии, Radeon R3 и аналоги).
