@@ -1,7 +1,0 @@
-opencv-python
-numpy
-PyQt6
-keyboard
-dxcam
-sounddevice
-requests
