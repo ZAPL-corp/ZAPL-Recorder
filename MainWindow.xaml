@@ -1,0 +1,249 @@
+﻿<Window x:Class="ZaplRecorder.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Zapl Recorder" Height="520" Width="720"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        WindowStartupLocation="CenterScreen"
+        FontFamily="Segoe UI">
+
+    <Border Background="#111111" CornerRadius="8" BorderBrush="#333333" BorderThickness="1">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="190"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar -->
+            <Border Grid.Column="0" Background="#181818" CornerRadius="8,0,0,8" BorderBrush="#333333" BorderThickness="0,0,1,0">
+                <Grid Margin="15">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0">
+                        <TextBlock Text="ZAPL RECORDER" Foreground="#e4e4e7" FontWeight="Bold" FontSize="15" Margin="0,0,0,20"/>
+
+                        <Button x:Name="btnTabRecord" Content="Запись" Style="{StaticResource MenuButtonStyle}" IsEnabled="False" Click="btnTabRecord_Click"/>
+                        <Button x:Name="btnTabSettings" Content="Настройки" Style="{StaticResource MenuButtonStyle}" Click="btnTabSettings_Click"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2">
+                        <Border Background="#222222" CornerRadius="6" Padding="10" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="ЗАГРУЗКА ЦП" Foreground="#555555" FontSize="9" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <Grid>
+                                    <TextBlock Text="Система" Foreground="#a1a1aa" FontSize="11"/>
+                                    <TextBlock x:Name="lblCpuLoad" Text="0%" Foreground="#f4f4f5" FontSize="11" HorizontalAlignment="Right"/>
+                                </Grid>
+                                <ProgressBar x:Name="pbCpu" Minimum="0" Maximum="100" Value="0" Height="4" Margin="0,5,0,0" Foreground="#3b82f6" Background="#333333" BorderThickness="0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main Content -->
+            <Grid Grid.Column="1" Margin="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header (только эта область двигает окно) -->
+                <Grid x:Name="headerBar" Grid.Row="0" Margin="0,0,0,20" Background="Transparent">
+                    <StackPanel>
+                        <TextBlock x:Name="lblHeaderTitle" Text="Готов к работе" Foreground="#FFFFFF" FontSize="22" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="lblTimer" Text="00:00:00" Foreground="#71717a" FontSize="14"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                        <Button Content="—" Width="30" Height="30" Click="btnMinimize_Click" Style="{StaticResource WindowControlButtonStyle}"/>
+                        <Button Content="✕" Width="30" Height="30" Click="btnClose_Click" Style="{StaticResource WindowControlButtonStyle}" Tag="Close"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ================= ВКЛАДКА "ЗАПИСЬ" ================= -->
+                <Grid x:Name="gridRecordView" Grid.Row="1">
+                    <Border x:Name="previewBox" Background="#000000" CornerRadius="6" BorderBrush="#333333" BorderThickness="1">
+                        <Grid>
+                            <TextBlock x:Name="lblStatusIcon" Text="●" Foreground="#3f3f46" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border x:Name="recIndicator" Visibility="Collapsed" Background="#44ff0000" CornerRadius="6" IsHitTestVisible="False">
+                                <TextBlock Text="REC" Foreground="White" FontWeight="Bold" Margin="15" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- ================= ВКЛАДКА "НАСТРОЙКИ" ================= -->
+                <ScrollViewer x:Name="gridSettingsView" Grid.Row="1" Visibility="Collapsed" VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+
+                        <TextBlock Text="ПАПКА ДЛЯ ЗАПИСЕЙ" Foreground="#71717a" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <Grid Margin="0,0,0,18">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="txtOutputFolder" Grid.Column="0" IsReadOnly="True" Background="#181818" Foreground="#d4d4d8" BorderBrush="#333333" Padding="6" VerticalContentAlignment="Center"/>
+                            <Button Grid.Column="1" Content="Обзор…" Width="80" Margin="8,0,0,0" Click="btnBrowseFolder_Click" Style="{StaticResource MenuButtonStyle}" IsEnabled="True" Background="#222222"/>
+                        </Grid>
+
+                        <TextBlock Text="FPS ЗАХВАТА" Foreground="#71717a" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="comboFps" Width="120" HorizontalAlignment="Left" Background="#181818" Foreground="White" BorderBrush="#333333" Margin="0,0,0,4" SelectionChanged="comboFps_SelectionChanged">
+                            <ComboBoxItem Content="15"/>
+                            <ComboBoxItem Content="24"/>
+                            <ComboBoxItem Content="30"/>
+                            <ComboBoxItem Content="60"/>
+                        </ComboBox>
+                        <TextBlock Text="На слабой встройке (AMD R3 / A4-9120) 60 FPS стабильны только с уменьшенным масштабом и битрейтом ниже." Foreground="#52525b" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <TextBlock Text="КОДИРОВЩИК" Foreground="#71717a" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="comboEncoder" HorizontalAlignment="Left" MinWidth="320" Background="#181818" Foreground="White" BorderBrush="#333333" Margin="0,0,0,4" SelectionChanged="comboEncoder_SelectionChanged">
+                            <ComboBoxItem Content="Авто: аппаратный AMD AMF, при ошибке — программный x264" Tag="auto"/>
+                            <ComboBoxItem Content="Только программный x264 (быстрее старт, стабильнее на слабом APU)" Tag="x264"/>
+                            <ComboBoxItem Content="Только программный MPEG4 (минимальная нагрузка на ЦП)" Tag="mpeg4"/>
+                        </ComboBox>
+                        <TextBlock Text="Если аппаратное ускорение на этом APU не заведётся, программа сама за секунду переключится на программный кодировщик — запись не прервётся." Foreground="#52525b" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <TextBlock Text="МАСШТАБ ЗАХВАТА" Foreground="#71717a" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="comboScale" Width="120" HorizontalAlignment="Left" Background="#181818" Foreground="White" BorderBrush="#333333" Margin="0,0,0,4" SelectionChanged="comboScale_SelectionChanged">
+                            <ComboBoxItem Content="100%" Tag="100"/>
+                            <ComboBoxItem Content="75%" Tag="75"/>
+                            <ComboBoxItem Content="50%" Tag="50"/>
+                        </ComboBox>
+                        <TextBlock Text="Уменьшение масштаба сильнее всего снижает нагрузку на ЦП при 60 FPS на 4 ГБ ноутбуке." Foreground="#52525b" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <TextBlock Text="БИТРЕЙТ ВИДЕО" Foreground="#71717a" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <ComboBox x:Name="comboBitrate" Width="160" HorizontalAlignment="Left" Background="#181818" Foreground="White" BorderBrush="#333333" Margin="0,0,0,18" SelectionChanged="comboBitrate_SelectionChanged">
+                            <ComboBoxItem Content="2500 кбит/с (легче для ЦП)" Tag="2500"/>
+                            <ComboBoxItem Content="4000 кбит/с" Tag="4000"/>
+                            <ComboBoxItem Content="6000 кбит/с" Tag="6000"/>
+                            <ComboBoxItem Content="8000 кбит/с" Tag="8000"/>
+                            <ComboBoxItem Content="10000 кбит/с (лучшее качество)" Tag="10000"/>
+                        </ComboBox>
+
+                        <TextBlock Text="ЗВУК" Foreground="#71717a" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <CheckBox x:Name="chkAudio" Content="Записывать звук системы" Foreground="#a1a1aa" Margin="0,0,0,4" Checked="chkAudio_Changed" Unchecked="chkAudio_Changed"/>
+                        <TextBlock Text="Экспериментально: требует установленный виртуальный аудио-драйвер (virtual-audio-capturer). Если его нет, запись автоматически продолжится без звука." Foreground="#52525b" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,18"/>
+
+                        <TextBlock Text="ЗАПУСК" Foreground="#71717a" FontSize="10" FontWeight="Bold" Margin="0,0,0,6"/>
+                        <CheckBox x:Name="chkStealthSettings" Content="Сворачивать окно при старте записи" Foreground="#a1a1aa" Margin="0,0,0,4" Checked="chkStealthSettings_Changed" Unchecked="chkStealthSettings_Changed"/>
+                        <TextBlock Text="Глобальная горячая клавиша: Ctrl+F9 — начать / остановить запись из любого окна." Foreground="#52525b" FontSize="10" TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Footer (только на вкладке "Запись") -->
+                <Grid x:Name="footerRecord" Grid.Row="2" Margin="0,20,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Margin="0,0,22,0">
+                            <TextBlock Text="БИТРЕЙТ" Foreground="#71717a" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock x:Name="lblBitrate" Text="—" Foreground="#f4f4f5" FontSize="13" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,22,0">
+                            <TextBlock Text="FPS КОДИРОВАНИЯ" Foreground="#71717a" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock x:Name="lblEncFps" Text="—" Foreground="#f4f4f5" FontSize="13" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="КОДИРОВЩИК" Foreground="#71717a" FontSize="10" FontWeight="Bold"/>
+                            <TextBlock x:Name="lblActiveEncoder" Text="—" Foreground="#f4f4f5" FontSize="13" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <Button Grid.Column="1" x:Name="btnRecord" Content="НАЧАТЬ ЗАПИСЬ" Width="180" Height="45" Click="btnRecord_Click" Style="{StaticResource ActionButtonStyle}"/>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+
+    <Window.Resources>
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#a1a1aa"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#222222"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#3b82f6"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="WindowControlButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#71717a"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#222222"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+                <MultiTrigger>
+                    <MultiTrigger.Conditions>
+                        <Condition Property="Tag" Value="Close"/>
+                        <Condition Property="IsMouseOver" Value="True"/>
+                    </MultiTrigger.Conditions>
+                    <Setter Property="Background" Value="#ef4444"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </MultiTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#3b82f6"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#2563eb"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#1d4ed8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+</Window>
