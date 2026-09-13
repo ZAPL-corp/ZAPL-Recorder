@@ -1,0 +1,10 @@
+# Version status
+This window lists all supported versions.
+| Version | Status |
+| --- | --- |
+| 1.0 | ✖️ |
+| 3.0 | ✖️ |
+| 4.0 | ✖️ |
+| 5.0 | ✖️ |
+| 5.4 | ✔️ |
+| 6.0 | `not upload` |
