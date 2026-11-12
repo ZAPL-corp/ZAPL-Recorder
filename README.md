@@ -11,5 +11,5 @@
 | :--- | :--- | :--- |
 | **Процессор `CPU`** | `AMD`: Radeon A4-9120 <br> `Intel`: Celeron N4000 | `none` |
 | **Графика `GPU`** | `AMD`: Radeon R3 Graphics <br> `Intel`: UHD Graphics 600 | `NVIDIA`: GeForce GTX 1630 <br> `AMD`: Radeon RX 550 |
-| **ОЗУ `RAM`** | 4 GB | 16 GB |
+| **ОЗУ `RAM`** | 4 GB | 8 GB |
 | **Свободного места `Available space`** | `Disk`: 100GB <br> `For the program`: ~100MB | `Disk`: Более 100ГБ / More 100GB <br> `For the program`: ~100MB |
