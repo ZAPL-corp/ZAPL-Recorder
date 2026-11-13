@@ -255,5 +255,3 @@ pub fn status_bar(app: &mut RecorderApp, ui: &mut egui::Ui) {
         });
     });
 }
-
-pub fn status_bar(app: &mut RecorderApp, ui: &mut egui::Ui) {
