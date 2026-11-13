@@ -5,6 +5,9 @@ Cargo.lock.bak
 # Дистрибутивы и архивы CI
 /dist/
 
+# Большие бинарники (ffmpeg скачивается workflow при сборке)
+bin/
+
 # Логи и мусор IDE/ОС
 *.log
 .DS_Store
