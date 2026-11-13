@@ -1,0 +1,12 @@
+# Сборка Rust — тяжёлая папка, в репозиторий не попадает
+target/
+Cargo.lock.bak
+
+# Дистрибутивы и архивы CI
+/dist/
+
+# Логи и мусор IDE/ОС
+*.log
+.DS_Store
+.idea/
+.vscode/
