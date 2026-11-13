@@ -10,3 +10,5 @@ Cargo.lock.bak
 .DS_Store
 .idea/
 .vscode/
+"bin/ffmpeg.exe" 
+"zapl-recorder.exe" 
