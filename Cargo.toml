@@ -1,0 +1,35 @@
+[package]
+name = "zapl-recorder"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "ZAPL Recorder — лёгкий рекордер и стример экрана в духе OBS Studio"
+license = "MIT"
+repository = "https://github.com/zapl-recorder/ZAPL-Recorder"
+
+[[bin]]
+name = "zapl-recorder"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.37", default-features = false, features = [
+    "glow",
+    "default_fonts",
+    "x11",
+    "wayland",
+] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "6"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+image = { version = "0.25", default-features = false, features = ["jpeg"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.dev]
+opt-level = 1

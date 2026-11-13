@@ -1,0 +1,159 @@
+name: build
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  windows:
+    name: Windows x64
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: windows-release
+
+      - name: Tests
+        run: cargo test --locked
+
+      - name: Build release
+        run: cargo build --release --locked
+
+      - name: Download ffmpeg (static essentials)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $zip = Join-Path $env:RUNNER_TEMP "ffmpeg.zip"
+          Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile $zip
+          $root = Join-Path $env:RUNNER_TEMP "ffmpeg"
+          Expand-Archive -Path $zip -DestinationPath $root -Force
+          $ffmpeg = Get-ChildItem $root -Recurse -Filter ffmpeg.exe | Select-Object -First 1
+          if (-not $ffmpeg) { throw "ffmpeg.exe не найден в архиве" }
+          New-Item -ItemType Directory -Force -Path "dist/ZAPL-Recorder/bin" | Out-Null
+          Copy-Item $ffmpeg.FullName "dist/ZAPL-Recorder/bin/ffmpeg.exe"
+          & "dist/ZAPL-Recorder/bin/ffmpeg.exe" -hide_banner -version | Select-Object -First 1
+
+      - name: Assemble distribution folder
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $dist = "dist/ZAPL-Recorder"
+          New-Item -ItemType Directory -Force -Path "$dist/bin", "$dist/docs" | Out-Null
+          Copy-Item "target/release/zapl-recorder.exe" "$dist/zapl-recorder.exe"
+          Copy-Item "README.md" "$dist/README.md"
+          Copy-Item "LICENSE" "$dist/LICENSE"
+          Copy-Item "THIRD-PARTY.md" "$dist/THIRD-PARTY.md"
+          Copy-Item "docs/QUICKSTART.md" "$dist/docs/QUICKSTART.md"
+          Copy-Item "packaging/config.example.json" "$dist/config.example.json"
+          Copy-Item "packaging/run-windows.bat" "$dist/run-windows.bat"
+          Copy-Item "packaging/README-DIST.txt" "$dist/README-FIRST.txt"
+          Compress-Archive -Path $dist -DestinationPath "dist/zapl-recorder-windows-x64.zip" -Force
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapl-recorder-windows-x64
+          path: dist/zapl-recorder-windows-x64.zip
+          if-no-files-found: error
+
+  linux:
+    name: Linux x64
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config \
+            libxkbcommon-dev libxkbcommon-x11-dev \
+            libwayland-dev wayland-protocols \
+            libx11-dev libxi-dev libxcursor-dev libxrandr-dev libxinerama-dev \
+            libgl1-mesa-dev libegl1-mesa-dev \
+            xdotool zip
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: linux-release
+
+      - name: Tests
+        run: cargo test --locked
+
+      - name: Build release
+        run: cargo build --release --locked
+
+      - name: Download static ffmpeg
+        run: |
+          set -euo pipefail
+          curl -fsSL -o /tmp/ffmpeg.tar.xz \
+            https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+          mkdir -p /tmp/ffmpeg-static
+          tar -xJf /tmp/ffmpeg.tar.xz -C /tmp/ffmpeg-static --strip-components=1
+          mkdir -p dist/ZAPL-Recorder/bin
+          install -m 755 /tmp/ffmpeg-static/ffmpeg dist/ZAPL-Recorder/bin/ffmpeg
+          dist/ZAPL-Recorder/bin/ffmpeg -hide_banner -version | head -n 1
+
+      - name: Assemble distribution folder
+        run: |
+          set -euo pipefail
+          dist=dist/ZAPL-Recorder
+          mkdir -p "$dist/docs"
+          install -m 755 target/release/zapl-recorder "$dist/zapl-recorder"
+          cp README.md LICENSE THIRD-PARTY.md "$dist/"
+          cp docs/QUICKSTART.md "$dist/docs/QUICKSTART.md"
+          cp packaging/config.example.json "$dist/config.example.json"
+          cp packaging/run-linux.sh "$dist/run-linux.sh"
+          cp packaging/README-DIST.txt "$dist/README-FIRST.txt"
+          chmod +x "$dist/run-linux.sh"
+          (cd dist && zip -r -9 zapl-recorder-linux-x64.zip ZAPL-Recorder)
+          unzip -l dist/zapl-recorder-linux-x64.zip
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapl-recorder-linux-x64
+          path: dist/zapl-recorder-linux-x64.zip
+          if-no-files-found: error
+
+  release:
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [ windows, linux ]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.zip
+          generate_release_notes: true
