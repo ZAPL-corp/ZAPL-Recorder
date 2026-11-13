@@ -1,8 +1,6 @@
 //! Холст программы: превью, рамки источников и оверлей записи.
 
-use eframe::egui::{
-    self, Align2, Color32, CornerRadius, FontId, Rect, Sense, Stroke, StrokeKind,
-};
+use eframe::egui::{self, Align2, Color32, CornerRadius, FontId, Rect, Sense, Stroke, StrokeKind};
 
 use crate::app::RecorderApp;
 use crate::media::SessionKind;
@@ -20,10 +18,7 @@ pub fn panel(app: &mut RecorderApp, ui: &mut egui::Ui) {
 
     painter.rect_filled(outer, CornerRadius::same(8), theme::BG_PANEL);
 
-    let header = Rect::from_min_max(
-        outer.min,
-        egui::pos2(outer.max.x, outer.min.y + 26.0),
-    );
+    let header = Rect::from_min_max(outer.min, egui::pos2(outer.max.x, outer.min.y + 26.0));
     let scene_name = app
         .cfg
         .active_scene()
@@ -126,7 +121,12 @@ pub fn panel(app: &mut RecorderApp, ui: &mut egui::Ui) {
     if let Some(session) = &app.session {
         let live = session.kind == SessionKind::Streaming;
         let color = if live { theme::LIVE } else { theme::DANGER };
-        painter.rect_stroke(outer, CornerRadius::same(8), Stroke::new(2.0, color), StrokeKind::Inside);
+        painter.rect_stroke(
+            outer,
+            CornerRadius::same(8),
+            Stroke::new(2.0, color),
+            StrokeKind::Inside,
+        );
 
         let badge = format!(
             "{}  {}",
@@ -163,7 +163,12 @@ pub fn panel(app: &mut RecorderApp, ui: &mut egui::Ui) {
                 .size_kb
                 .map(|kb| format!("{:.1} МБ", kb as f32 / 1024.0))
                 .unwrap_or_else(|| "—".to_string());
-            format!("{} · {} · {}", size, session.stats.fps_text(), session.title)
+            format!(
+                "{} · {} · {}",
+                size,
+                session.stats.fps_text(),
+                session.title
+            )
         };
         let timer_rect = Rect::from_min_size(
             inner.left_bottom() + egui::vec2(10.0, -58.0),

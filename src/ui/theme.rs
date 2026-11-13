@@ -87,12 +87,7 @@ pub fn inset() -> egui::Frame {
 
 pub fn section(ui: &mut egui::Ui, title: &str) {
     ui.add_space(2.0);
-    ui.label(
-        RichText::new(title)
-            .size(11.0)
-            .strong()
-            .color(TEXT_WEAK),
-    );
+    ui.label(RichText::new(title).size(11.0).strong().color(TEXT_WEAK));
     ui.add_space(3.0);
 }
 

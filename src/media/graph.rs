@@ -106,12 +106,7 @@ fn source_input(
         SourceKind::Display => {
             #[cfg(windows)]
             {
-                let monitor: u32 = source
-                    .target
-                    .trim()
-                    .parse::<u32>()
-                    .unwrap_or(0)
-                    .min(7);
+                let monitor: u32 = source.target.trim().parse::<u32>().unwrap_or(0).min(7);
                 if engine == CaptureEngine::Dxgi && has_ddagrab {
                     return Ok((
                         vec![
@@ -720,7 +715,11 @@ mod tests {
         scene
     }
 
-    fn plan_for(scene: &Scene, audio: &[AudioSource], destination: &Destination) -> Result<CapturePlan, String> {
+    fn plan_for(
+        scene: &Scene,
+        audio: &[AudioSource],
+        destination: &Destination,
+    ) -> Result<CapturePlan, String> {
         let settings = Settings::default();
         let input = PlanInput {
             ffmpeg: Path::new("ffmpeg"),

@@ -3,6 +3,7 @@ name: build
 on:
   push:
     branches: [ main, master ]
+    tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -12,20 +13,33 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # Отменяем старые запуски только для PR. Сборки main и релизных тегов
+  # не должны прерываться новым пушем.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: "0"
-  RUSTFLAGS: "-D warnings"
 
 jobs:
   check:
     name: Clippy + fmt
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config \
+            libxkbcommon-dev libxkbcommon-x11-dev \
+            libwayland-dev wayland-protocols \
+            libx11-dev libxi-dev libxcursor-dev libxrandr-dev libxinerama-dev \
+            libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
+            libgl1-mesa-dev libegl1-mesa-dev
 
       - name: Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -37,16 +51,17 @@ jobs:
         with:
           shared-key: check
 
-      - name: cargo fmt --check
-        run: cargo fmt --check
+      - name: Check formatting
+        run: cargo fmt --all --check
 
-      - name: cargo clippy
+      - name: Clippy
         run: cargo clippy --all-targets --locked
 
   windows:
     name: Windows x64
     needs: check
     runs-on: windows-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -106,6 +121,7 @@ jobs:
     name: Linux x64
     needs: check
     runs-on: ubuntu-22.04
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -118,6 +134,7 @@ jobs:
             libxkbcommon-dev libxkbcommon-x11-dev \
             libwayland-dev wayland-protocols \
             libx11-dev libxi-dev libxcursor-dev libxrandr-dev libxinerama-dev \
+            libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev \
             libgl1-mesa-dev libegl1-mesa-dev \
             xdotool zip
 
@@ -173,6 +190,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [ windows, linux ]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:

@@ -25,7 +25,11 @@ pub fn bar(app: &mut RecorderApp, ui: &mut egui::Ui) {
         } else {
             "Начать запись"
         };
-        let record_fill = if recording { theme::DANGER } else { theme::ACCENT };
+        let record_fill = if recording {
+            theme::DANGER
+        } else {
+            theme::ACCENT
+        };
         let record = ui
             .add_enabled_ui(!busy || recording, |ui| {
                 theme::button(ui, record_text, record_fill)
@@ -46,7 +50,11 @@ pub fn bar(app: &mut RecorderApp, ui: &mut egui::Ui) {
         } else {
             "Начать стрим"
         };
-        let stream_fill = if streaming { theme::DANGER } else { theme::LIVE };
+        let stream_fill = if streaming {
+            theme::DANGER
+        } else {
+            theme::LIVE
+        };
         let stream = ui
             .add_enabled_ui(!busy || streaming, |ui| {
                 theme::button(ui, stream_text, stream_fill)
@@ -85,8 +93,9 @@ pub fn bar(app: &mut RecorderApp, ui: &mut egui::Ui) {
             app.open_output_dir();
         }
 
-        ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-            match &target_label {
+        ui.with_layout(
+            egui::Layout::right_to_left(egui::Align::Center),
+            |ui| match &target_label {
                 Some(label) => {
                     let response = ui.label(
                         RichText::new(format!("Стрим: {label}"))
@@ -104,8 +113,8 @@ pub fn bar(app: &mut RecorderApp, ui: &mut egui::Ui) {
                         app.settings_open = true;
                     }
                 }
-            }
-        });
+            },
+        );
     });
 
     if !has_ffmpeg {

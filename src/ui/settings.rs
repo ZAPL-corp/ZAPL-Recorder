@@ -116,7 +116,10 @@ fn general(app: &mut RecorderApp, ui: &mut egui::Ui) {
     ui.add_space(8.0);
     theme::section(ui, "ПРЕВЬЮ");
     let mut preview = app.cfg.settings.preview_enabled;
-    if ui.checkbox(&mut preview, "Показывать превью, когда запись не идёт").changed() {
+    if ui
+        .checkbox(&mut preview, "Показывать превью, когда запись не идёт")
+        .changed()
+    {
         app.cfg.settings.preview_enabled = preview;
         if preview {
             app.request_preview_restart(200);
@@ -204,14 +207,22 @@ fn video(app: &mut RecorderApp, ui: &mut egui::Ui) {
     ui.horizontal(|ui| {
         ui.label(RichText::new("Ширина").small().color(TEXT_WEAK));
         if ui
-            .add(egui::DragValue::new(&mut width).range(320..=3840).speed(2.0))
+            .add(
+                egui::DragValue::new(&mut width)
+                    .range(320..=3840)
+                    .speed(2.0),
+            )
             .changed()
         {
             changed = true;
         }
         ui.label(RichText::new("Высота").small().color(TEXT_WEAK));
         if ui
-            .add(egui::DragValue::new(&mut height).range(240..=2160).speed(2.0))
+            .add(
+                egui::DragValue::new(&mut height)
+                    .range(240..=2160)
+                    .speed(2.0),
+            )
             .changed()
         {
             changed = true;
@@ -443,8 +454,7 @@ fn stream(app: &mut RecorderApp, ui: &mut egui::Ui) {
                     if platform != target.platform {
                         let old_default = target.platform.default_url();
                         if target.url.trim().is_empty()
-                            || target.url.trim_end_matches('/')
-                                == old_default.trim_end_matches('/')
+                            || target.url.trim_end_matches('/') == old_default.trim_end_matches('/')
                         {
                             target.url = platform.default_url().to_string();
                         }
@@ -551,7 +561,10 @@ fn stream(app: &mut RecorderApp, ui: &mut egui::Ui) {
     }
 
     if targets.is_empty() {
-        theme::weak(ui, "Площадок пока нет. Добавьте Twitch, YouTube или свой RTMP.");
+        theme::weak(
+            ui,
+            "Площадок пока нет. Добавьте Twitch, YouTube или свой RTMP.",
+        );
     }
 
     if changed {
@@ -638,10 +651,7 @@ fn audio(app: &mut RecorderApp, ui: &mut egui::Ui) {
                             ui.label("Список пуст — введите строку вручную");
                         }
                         for value in &devices {
-                            if ui
-                                .selectable_label(item.device == *value, value)
-                                .clicked()
-                            {
+                            if ui.selectable_label(item.device == *value, value).clicked() {
                                 item.device = value.clone();
                                 changed = true;
                             }

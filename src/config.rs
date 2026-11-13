@@ -4,7 +4,8 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::model::{
-    default_output_dir, AudioKind, AudioSource, CanvasRect, Id, Scene, Settings, Source, StreamTarget,
+    default_output_dir, AudioKind, AudioSource, CanvasRect, Id, Scene, Settings, Source,
+    StreamTarget,
 };
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
@@ -96,7 +97,8 @@ impl Config {
     }
 
     pub fn active_scene(&self) -> Option<&Scene> {
-        self.scene(self.active_scene).or_else(|| self.scenes.first())
+        self.scene(self.active_scene)
+            .or_else(|| self.scenes.first())
     }
 
     pub fn active_scene_mut(&mut self) -> Option<&mut Scene> {

@@ -149,7 +149,11 @@ fn properties(app: &mut RecorderApp, ui: &mut egui::Ui, draft: &mut crate::model
             );
         }
         SourceKind::Window => {
-            ui.label(RichText::new("Заголовок окна (достаточно части)").small().color(TEXT_WEAK));
+            ui.label(
+                RichText::new("Заголовок окна (достаточно части)")
+                    .small()
+                    .color(TEXT_WEAK),
+            );
             let mut target = draft.target.clone();
             if ui.text_edit_singleline(&mut target).changed() {
                 draft.target = target;

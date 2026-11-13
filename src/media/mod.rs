@@ -114,9 +114,11 @@ pub fn open_browser(url: &str, rect: ScreenRect) -> Result<(), String> {
             return spawn_browser(&path, url, rect, &profile);
         }
         open_url_default(url)?;
-        Err("Chromium/Chrome/Edge не найден: страница открыта в браузере по умолчанию, \
+        Err(
+            "Chromium/Chrome/Edge не найден: страница открыта в браузере по умолчанию, \
              но окно не удалось поставить в нужный регион. Используйте источник «Окно»."
-            .to_string())
+                .to_string(),
+        )
     }
     #[cfg(not(windows))]
     {
@@ -133,9 +135,11 @@ pub fn open_browser(url: &str, rect: ScreenRect) -> Result<(), String> {
             }
         }
         open_url_default(url)?;
-        Err("Chromium/Chrome не найден: страница открыта браузером по умолчанию, \
+        Err(
+            "Chromium/Chrome не найден: страница открыта браузером по умолчанию, \
              но окно не удалось поставить в нужный регион. Используйте источник «Окно»."
-            .to_string())
+                .to_string(),
+        )
     }
 }
 
@@ -157,12 +161,7 @@ fn find_in_path(name: &str) -> Option<PathBuf> {
     None
 }
 
-fn spawn_browser(
-    exe: &Path,
-    url: &str,
-    rect: ScreenRect,
-    profile: &Path,
-) -> Result<(), String> {
+fn spawn_browser(exe: &Path, url: &str, rect: ScreenRect, profile: &Path) -> Result<(), String> {
     let mut cmd = std::process::Command::new(exe);
     cmd.arg(format!("--app={url}"))
         .arg(format!(

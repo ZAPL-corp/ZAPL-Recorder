@@ -1,4 +1,4 @@
-﻿//! Модуль и записи: сцены, источники, настройки, запись экрана и звук.
+//! Модуль и записи: сцены, источники, настройки, запись экрана и звук.
 
 use serde::{Deserialize, Serialize};
 
@@ -45,9 +45,7 @@ impl SourceKind {
 
     pub fn hint(self) -> &'static str {
         match self {
-            SourceKind::Display => {
-                "Захват всего монитора или части экрана (0 — основной монитор)."
-            }
+            SourceKind::Display => "Захват всего монитора или части экрана (0 — основной монитор).",
             SourceKind::Window => {
                 "Захват окна по заголовку. Окно должно быть видимым и не свёрнуто."
             }
@@ -285,7 +283,9 @@ impl Mode {
     pub fn hint(self) -> &'static str {
         match self {
             Mode::Game => "1080p60, быстрое кодирование, низкая задержка для динамичных игр.",
-            Mode::Work => "720p30, статичный текст: tune stillimage, низкий битрейт для слабого CPU.",
+            Mode::Work => {
+                "720p30, статичный текст: tune stillimage, низкий битрейт для слабого CPU."
+            }
             Mode::WorkStream => "900p30, 3 500 кбит/с — стабильно на слабом интернете.",
             Mode::GameStream => "1080p60, 6 000 кбит/с, ключевой кадр 2 секунды.",
             Mode::Ai => "1080p30, текст и таблицы, долгие сессии скринкастов нейросетей.",
@@ -394,9 +394,7 @@ impl Encoder {
 
     pub fn hint(self) -> &'static str {
         match self {
-            Encoder::X264 => {
-                "Нагрузка на процессор. Для слабого CPU используйте preset ultrafast."
-            }
+            Encoder::X264 => "Нагрузка на процессор. Для слабого CPU используйте preset ultrafast.",
             Encoder::Nvenc => "Аппаратный кодировщик NVIDIA, почти без нагрузки на CPU.",
             Encoder::Qsv => "Intel Quick Sync, кодирование на видеоядре.",
             Encoder::Amf => "AMD AMF, кодирование на видеоядре Adrenalin.",

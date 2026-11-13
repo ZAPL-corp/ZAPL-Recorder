@@ -11,13 +11,14 @@ use crate::media::{
     self, ffmpeg, CapturePlan, Destination, Preview, PreviewFrame, Session, SessionKind,
 };
 use crate::model::{
-    AudioSource, CanvasRect, Id, Mode, Scene, ScreenRect, Source, SourceKind, AudioKind,
+    AudioKind, AudioSource, CanvasRect, Id, Mode, Scene, ScreenRect, Source, SourceKind,
 };
 use crate::ui;
 
 pub const APP_NAME: &str = "ZAPL Recorder";
 pub const APP_VERSION: &str = env!("CARGO_PKG_VERSION");
-pub const FFMPEG_HINT: &str = "ffmpeg не найден. Положите ffmpeg.exe (Linux: ffmpeg) в папку bin рядом \
+pub const FFMPEG_HINT: &str =
+    "ffmpeg не найден. Положите ffmpeg.exe (Linux: ffmpeg) в папку bin рядом \
 с программой или установите его в PATH, затем нажмите «Проверить ffmpeg».";
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -169,7 +170,10 @@ impl RecorderApp {
     }
 
     pub fn has_ddagrab(&self) -> bool {
-        self.probe.as_ref().map(|p| p.has_ddagrab()).unwrap_or(false)
+        self.probe
+            .as_ref()
+            .map(|p| p.has_ddagrab())
+            .unwrap_or(false)
     }
 
     pub fn audio_devices(&self) -> &[String] {
@@ -237,7 +241,10 @@ impl RecorderApp {
     // ------------------------------------------------------------------
 
     fn make_plan(&self, destination: Destination) -> Result<(CapturePlan, String), String> {
-        let ffmpeg = self.ffmpeg.as_ref().ok_or_else(|| FFMPEG_HINT.to_string())?;
+        let ffmpeg = self
+            .ffmpeg
+            .as_ref()
+            .ok_or_else(|| FFMPEG_HINT.to_string())?;
         let scene = self
             .cfg
             .active_scene()
@@ -591,7 +598,10 @@ impl RecorderApp {
 
     pub fn open_browser_for(&mut self, source: &Source) {
         match media::open_browser(&source.target, source.screen) {
-            Ok(()) => self.toast("Окно браузера открыто — не перекрывайте его другими окнами.", false),
+            Ok(()) => self.toast(
+                "Окно браузера открыто — не перекрывайте его другими окнами.",
+                false,
+            ),
             Err(err) => self.toast(err, true),
         }
     }
@@ -650,7 +660,10 @@ impl RecorderApp {
             }
         }
 
-        let frame = self.preview.as_ref().and_then(|preview| preview.next_frame());
+        let frame = self
+            .preview
+            .as_ref()
+            .and_then(|preview| preview.next_frame());
         if let Some(frame) = frame {
             self.upload_frame(ctx, frame);
         }
@@ -712,17 +725,23 @@ impl eframe::App for RecorderApp {
         let ctx = ui.ctx().clone();
         self.tick(&ctx);
 
-        let panel_frame =
-            egui::Frame::NONE.fill(ui::theme::BG_PANEL).inner_margin(egui::Margin::same(8));
-        let status_frame =
-            egui::Frame::NONE.fill(ui::theme::BG_PANEL).inner_margin(egui::Margin::same(8));
+        let panel_frame = egui::Frame::NONE
+            .fill(ui::theme::BG_PANEL)
+            .inner_margin(egui::Margin::same(8));
+        let status_frame = egui::Frame::NONE
+            .fill(ui::theme::BG_PANEL)
+            .inner_margin(egui::Margin::same(8));
 
         egui::Panel::top("menu_bar")
             .frame(panel_frame)
             .show(ui, |ui| ui::top_bar(self, ui));
 
         egui::Panel::top("toolbar")
-            .frame(egui::Frame::NONE.fill(ui::theme::BG).inner_margin(egui::Margin::same(8)))
+            .frame(
+                egui::Frame::NONE
+                    .fill(ui::theme::BG)
+                    .inner_margin(egui::Margin::same(8)),
+            )
             .show(ui, |ui| ui::toolbar(self, ui));
 
         egui::Panel::bottom("status_bar")
@@ -733,7 +752,11 @@ impl eframe::App for RecorderApp {
             .resizable(true)
             .default_size(268.0)
             .size_range(220.0..=400.0)
-            .frame(egui::Frame::NONE.fill(ui::theme::BG).inner_margin(egui::Margin::same(8)))
+            .frame(
+                egui::Frame::NONE
+                    .fill(ui::theme::BG)
+                    .inner_margin(egui::Margin::same(8)),
+            )
             .show(ui, |ui| {
                 egui::ScrollArea::vertical()
                     .id_salt("left_scroll")
@@ -751,7 +774,11 @@ impl eframe::App for RecorderApp {
             .resizable(true)
             .default_size(262.0)
             .size_range(220.0..=380.0)
-            .frame(egui::Frame::NONE.fill(ui::theme::BG).inner_margin(egui::Margin::same(8)))
+            .frame(
+                egui::Frame::NONE
+                    .fill(ui::theme::BG)
+                    .inner_margin(egui::Margin::same(8)),
+            )
             .show(ui, |ui| {
                 egui::ScrollArea::vertical()
                     .id_salt("right_scroll")
@@ -760,7 +787,11 @@ impl eframe::App for RecorderApp {
             });
 
         egui::CentralPanel::default()
-            .frame(egui::Frame::NONE.fill(ui::theme::BG).inner_margin(egui::Margin::same(8)))
+            .frame(
+                egui::Frame::NONE
+                    .fill(ui::theme::BG)
+                    .inner_margin(egui::Margin::same(8)),
+            )
             .show(ui, |ui| {
                 ui::preview::panel(self, ui);
                 ui.add_space(8.0);

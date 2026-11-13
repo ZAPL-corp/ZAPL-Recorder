@@ -70,10 +70,7 @@ pub fn top_bar(app: &mut RecorderApp, ui: &mut egui::Ui) {
 
         ui.menu_button("Источники", |ui| {
             for kind in SourceKind::ALL {
-                if ui
-                    .button(format!("Добавить: {}", kind.label()))
-                    .clicked()
-                {
+                if ui.button(format!("Добавить: {}", kind.label())).clicked() {
                     app.add_source(kind);
                     ui.close();
                 }
@@ -208,17 +205,13 @@ pub fn status_bar(app: &mut RecorderApp, ui: &mut egui::Ui) {
         theme::inset().show(ui, |ui| {
             ui.horizontal(|ui| {
                 ui.label(RichText::new(tag).size(10.0).strong().color(color));
-                ui.label(
-                    RichText::new(big)
-                        .monospace()
-                        .size(22.0)
-                        .strong()
-                        .color(if app.session.is_some() {
-                            color
-                        } else {
-                            theme::TEXT
-                        }),
-                );
+                ui.label(RichText::new(big).monospace().size(22.0).strong().color(
+                    if app.session.is_some() {
+                        color
+                    } else {
+                        theme::TEXT
+                    },
+                ));
             });
         });
         ui.add_space(2.0);

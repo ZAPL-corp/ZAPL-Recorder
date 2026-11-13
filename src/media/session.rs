@@ -208,9 +208,7 @@ fn describe_exit(status: &std::process::ExitStatus) -> String {
 fn field<'a>(line: &'a str, key: &str) -> Option<&'a str> {
     let start = line.find(key)? + key.len();
     let rest = line[start..].trim_start();
-    let end = rest
-        .find(|c: char| c.is_whitespace())
-        .unwrap_or(rest.len());
+    let end = rest.find(|c: char| c.is_whitespace()).unwrap_or(rest.len());
     Some(rest[..end].trim())
 }
 

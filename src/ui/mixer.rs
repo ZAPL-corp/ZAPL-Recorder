@@ -11,7 +11,10 @@ pub fn panel(app: &mut RecorderApp, ui: &mut egui::Ui) {
 
     let audio: Vec<AudioSource> = app.cfg.audio.clone();
     if audio.is_empty() {
-        theme::weak(ui, "Звуковых источников нет. Добавьте микрофон или системный звук.");
+        theme::weak(
+            ui,
+            "Звуковых источников нет. Добавьте микрофон или системный звук.",
+        );
     }
 
     for item in audio {
@@ -68,7 +71,10 @@ pub fn panel(app: &mut RecorderApp, ui: &mut egui::Ui) {
         }
     });
     if !app.audio_devices().is_empty() {
-        theme::weak(ui, format!("Найдено устройств: {}", app.audio_devices().len()));
+        theme::weak(
+            ui,
+            format!("Найдено устройств: {}", app.audio_devices().len()),
+        );
     }
     if ui
         .add(egui::Button::new("Устройства и уровни").min_size(egui::vec2(0.0, 24.0)))
@@ -122,18 +128,14 @@ pub fn panel(app: &mut RecorderApp, ui: &mut egui::Ui) {
     ui.add_space(6.0);
 
     theme::section(ui, "ПЛОЩАДКА СТРИМА");
-    let target = app
-        .cfg
-        .settings
-        .active_stream_target()
-        .map(|target| {
-            (
-                target.platform.label().to_string(),
-                target.name.clone(),
-                target.masked_key(),
-                target.url.clone(),
-            )
-        });
+    let target = app.cfg.settings.active_stream_target().map(|target| {
+        (
+            target.platform.label().to_string(),
+            target.name.clone(),
+            target.masked_key(),
+            target.url.clone(),
+        )
+    });
     match target {
         Some((platform, name, masked, url)) => {
             ui.label(RichText::new(format!("{platform} · {name}")).strong());
@@ -158,6 +160,9 @@ pub fn panel(app: &mut RecorderApp, ui: &mut egui::Ui) {
         "Профиль задаёт разрешение, FPS и битрейт. Для слабого ПК выберите x264 ultrafast или аппаратный NVENC/QSV.",
     );
     if app.session.is_some() {
-        theme::weak(ui, "Во время записи превью остановлено, чтобы не тратить CPU.");
+        theme::weak(
+            ui,
+            "Во время записи превью остановлено, чтобы не тратить CPU.",
+        );
     }
 }
