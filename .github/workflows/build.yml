@@ -1,18 +1,51 @@
 name: build
 
 on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: "0"
+  RUSTFLAGS: "-D warnings"
 
 jobs:
+  check:
+    name: Clippy + fmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: check
+
+      - name: cargo fmt --check
+        run: cargo fmt --check
+
+      - name: cargo clippy
+        run: cargo clippy --all-targets --locked
+
   windows:
     name: Windows x64
+    needs: check
     runs-on: windows-latest
     steps:
       - name: Checkout
@@ -71,6 +104,7 @@ jobs:
 
   linux:
     name: Linux x64
+    needs: check
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout

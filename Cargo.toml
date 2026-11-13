@@ -25,7 +25,9 @@ chrono = { version = "0.4", default-features = false, features = ["clock", "std"
 image = { version = "0.25", default-features = false, features = ["jpeg"] }
 
 [profile.release]
-opt-level = "s"
+# opt-level = "z" — оптимизация по размеру. На слабом CPU (2 ядра, A4-9120)
+# это лучше, чем "s": меньше инструкций = лучше попадания в кэш команд.
+opt-level = "z"
 lto = true
 codegen-units = 1
 panic = "abort"
@@ -33,3 +35,7 @@ strip = true
 
 [profile.dev]
 opt-level = 1
+
+# Для сборки на целевом железе (A4-9120 / Excavator) используйте:
+#   RUSTFLAGS="-C target-cpu=bdver4" cargo build --release --locked
+# На GitHub Actions собираем generic x86-64, бинарник будет работать везде.

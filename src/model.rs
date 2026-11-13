@@ -1,11 +1,11 @@
-﻿//! РњРѕРґРµР»СЊ РґР°РЅРЅС‹С…: СЃС†РµРЅС‹, РёСЃС‚РѕС‡РЅРёРєРё, Р°СѓРґРёРѕ, РЅР°СЃС‚СЂРѕР№РєРё РІС‹РІРѕРґР° Рё СЃС‚СЂРёРјР°.
+﻿//! Модуль и записи: сцены, источники, настройки, запись экрана и звук.
 
 use serde::{Deserialize, Serialize};
 
 pub type Id = u64;
 
 // ---------------------------------------------------------------------------
-// РСЃС‚РѕС‡РЅРёРєРё
+// Настройки
 // ---------------------------------------------------------------------------
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -27,17 +27,17 @@ impl SourceKind {
 
     pub fn label(self) -> &'static str {
         match self {
-            SourceKind::Display => "Р—Р°С…РІР°С‚ СЌРєСЂР°РЅР°",
-            SourceKind::Window => "РћРєРЅРѕ",
-            SourceKind::Browser => "Р‘СЂР°СѓР·РµСЂ",
-            SourceKind::Image => "РљР°СЂС‚РёРЅРєР°",
+            SourceKind::Display => "Захват экрана",
+            SourceKind::Window => "Окно",
+            SourceKind::Browser => "Браузер",
+            SourceKind::Image => "Картинка",
         }
     }
 
     pub fn short(self) -> &'static str {
         match self {
-            SourceKind::Display => "Р­РљР РђРќ",
-            SourceKind::Window => "РћРљРќРћ",
+            SourceKind::Display => "ЭКРАН",
+            SourceKind::Window => "ОКНО",
             SourceKind::Browser => "WEB",
             SourceKind::Image => "IMG",
         }
@@ -45,16 +45,22 @@ impl SourceKind {
 
     pub fn hint(self) -> &'static str {
         match self {
-            SourceKind::Display => "Р’РµСЃСЊ РјРѕРЅРёС‚РѕСЂ РёР»Рё РµРіРѕ РёРЅРґРµРєСЃ (0 вЂ” РѕСЃРЅРѕРІРЅРѕР№).",
-            SourceKind::Window => "Р§Р°СЃС‚СЊ Р·Р°РіРѕР»РѕРІРєР° РѕРєРЅР°, РєРѕС‚РѕСЂРѕРµ РЅСѓР¶РЅРѕ Р·Р°С…РІР°С‚РёС‚СЊ.",
-            SourceKind::Browser => "URL, РѕС‚РєСЂС‹РІР°РµРјС‹Р№ РІ РѕС‚РґРµР»СЊРЅРѕРј РѕРєРЅРµ Р±СЂР°СѓР·РµСЂР°.",
-            SourceKind::Image => "РџСѓС‚СЊ Рє PNG/JPG вЂ” Р»РѕРіРѕС‚РёРї РёР»Рё РѕРІРµСЂР»РµР№.",
+            SourceKind::Display => {
+                "Захват всего монитора или части экрана (0 — основной монитор)."
+            }
+            SourceKind::Window => {
+                "Захват окна по заголовку. Окно должно быть видимым и не свёрнуто."
+            }
+            SourceKind::Browser => {
+                "URL, страница открывается в отдельном окне браузера рядом с программой."
+            }
+            SourceKind::Image => "Картинка PNG/JPG — логотип или оверлей поверх композиции.",
         }
     }
 }
 
-/// РљР°РґСЂ РёСЃС‚РѕС‡РЅРёРєР° РЅР° СЌРєСЂР°РЅРµ: РЅСѓР¶РµРЅ РґР»СЏ РѕРєРѕРЅ Рё Р±СЂР°СѓР·РµСЂР° (СЂРµРіРёРѕРЅ Р·Р°С…РІР°С‚Р°),
-/// Р° С‚Р°РєР¶Рµ С‡С‚РѕР±С‹ РѕС‚РєСЂС‹С‚СЊ РѕРєРЅРѕ Р±СЂР°СѓР·РµСЂР° РІ РїСЂРµРґСЃРєР°Р·СѓРµРјРѕРј РјРµСЃС‚Рµ.
+/// Создаёт источник экрана: по умолчанию весь монитор, а также область окна
+/// с нужным монитором (целевой регион).
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 #[serde(default)]
 pub struct ScreenRect {
@@ -75,7 +81,7 @@ impl Default for ScreenRect {
     }
 }
 
-/// РџРѕР»РѕР¶РµРЅРёРµ РёСЃС‚РѕС‡РЅРёРєР° РЅР° С…РѕР»СЃС‚Рµ СЃС†РµРЅС‹.
+/// Размер и положение области на холсте compositing.
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
 #[serde(default)]
 pub struct CanvasRect {
@@ -90,8 +96,8 @@ impl Default for CanvasRect {
         Self {
             x: 0,
             y: 0,
-            w: 1920,
-            h: 1080,
+            w: 1280,
+            h: 720,
         }
     }
 }
@@ -114,7 +120,7 @@ pub struct Source {
     pub name: String,
     pub kind: SourceKind,
     pub visible: bool,
-    /// РњРѕРЅРёС‚РѕСЂ, Р·Р°РіРѕР»РѕРІРѕРє РѕРєРЅР°, URL РёР»Рё РїСѓС‚СЊ Рє РєР°СЂС‚РёРЅРєРµ.
+    /// Монитор, окно по заголовку, URL или файл картинки/логотипа.
     pub target: String,
     pub canvas: CanvasRect,
     pub screen: ScreenRect,
@@ -138,7 +144,7 @@ impl Source {
     pub fn display(id: Id, canvas_w: u32, canvas_h: u32) -> Self {
         Self {
             id,
-            name: "Р—Р°С…РІР°С‚ СЌРєСЂР°РЅР°".to_string(),
+            name: "Захват экрана".to_string(),
             kind: SourceKind::Display,
             visible: true,
             target: "0".to_string(),
@@ -149,10 +155,10 @@ impl Source {
 
     pub fn of_kind(id: Id, kind: SourceKind) -> Self {
         let (name, target) = match kind {
-            SourceKind::Display => ("Р—Р°С…РІР°С‚ СЌРєСЂР°РЅР°".to_string(), "0".to_string()),
-            SourceKind::Window => ("РћРєРЅРѕ".to_string(), String::new()),
-            SourceKind::Browser => ("Р‘СЂР°СѓР·РµСЂ".to_string(), "https://example.com".to_string()),
-            SourceKind::Image => ("РљР°СЂС‚РёРЅРєР°".to_string(), String::new()),
+            SourceKind::Display => ("Захват экрана".to_string(), "0".to_string()),
+            SourceKind::Window => ("Окно".to_string(), String::new()),
+            SourceKind::Browser => ("Браузер".to_string(), "https://example.com".to_string()),
+            SourceKind::Image => ("Картинка".to_string(), String::new()),
         };
         Self {
             id,
@@ -177,14 +183,14 @@ impl Default for Scene {
     fn default() -> Self {
         Self {
             id: 0,
-            name: "РЎС†РµРЅР°".to_string(),
+            name: "Сцена".to_string(),
             sources: Vec::new(),
         }
     }
 }
 
 // ---------------------------------------------------------------------------
-// РђСѓРґРёРѕ
+// Аудио
 // ---------------------------------------------------------------------------
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -197,8 +203,8 @@ pub enum AudioKind {
 impl AudioKind {
     pub fn label(self) -> &'static str {
         match self {
-            AudioKind::Mic => "РњРёРєСЂРѕС„РѕРЅ",
-            AudioKind::Desktop => "РЎРёСЃС‚РµРјРЅС‹Р№ Р·РІСѓРє",
+            AudioKind::Mic => "Микрофон",
+            AudioKind::Desktop => "Системный звук",
         }
     }
 }
@@ -209,7 +215,7 @@ pub struct AudioSource {
     pub id: Id,
     pub name: String,
     pub kind: AudioKind,
-    /// РЎС‚СЂРѕРєР° СѓСЃС‚СЂРѕР№СЃС‚РІР° РґР»СЏ ffmpeg: `audio=...` (dshow) РёР»Рё `default` (pulse).
+    /// Устройство ввода для ffmpeg: `audio=...` (dshow) или `default` (pulse).
     pub device: String,
     pub volume: f32,
     pub muted: bool,
@@ -220,7 +226,7 @@ impl Default for AudioSource {
     fn default() -> Self {
         Self {
             id: 0,
-            name: "РњРёРєСЂРѕС„РѕРЅ".to_string(),
+            name: "Микрофон".to_string(),
             kind: AudioKind::Mic,
             device: String::new(),
             volume: 1.0,
@@ -231,7 +237,7 @@ impl Default for AudioSource {
 }
 
 // ---------------------------------------------------------------------------
-// Р РµР¶РёРјС‹ СЂР°Р±РѕС‚С‹ (РїСЂРѕС„РёР»Рё)
+// Пресеты режимов записи и стрима
 // ---------------------------------------------------------------------------
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -267,74 +273,76 @@ impl Mode {
 
     pub fn label(self) -> &'static str {
         match self {
-            Mode::Game => "Р—Р°РїРёСЃСЊ РёРіСЂС‹",
-            Mode::Work => "Р—Р°РїРёСЃСЊ СЂР°Р±РѕС‚С‹",
-            Mode::WorkStream => "РЎС‚СЂРёРј СЂР°Р±РѕС‚С‹",
-            Mode::GameStream => "РЎС‚СЂРёРј РёРіСЂС‹",
-            Mode::Ai => "Р—Р°РїРёСЃСЊ РР",
-            Mode::AiStream => "РЎС‚СЂРёРј РР",
+            Mode::Game => "Запись игры",
+            Mode::Work => "Запись работы",
+            Mode::WorkStream => "Стрим работы",
+            Mode::GameStream => "Стрим игры",
+            Mode::Ai => "Запись ИИ",
+            Mode::AiStream => "Стрим ИИ",
         }
     }
 
     pub fn hint(self) -> &'static str {
         match self {
-            Mode::Game => "1080p60, РІС‹СЃРѕРєРёР№ Р±РёС‚СЂРµР№С‚, РјРёРЅРёРјСѓРј Р°СЂС‚РµС„Р°РєС‚РѕРІ РІ РґРІРёР¶РµРЅРёРё.",
-            Mode::Work => "1080p30, СЂРµР·РєРёР№ С‚РµРєСЃС‚: tune stillimage, РЅРµР±РѕР»СЊС€РѕР№ Р±РёС‚СЂРµР№С‚.",
-            Mode::WorkStream => "900p30, 3.5 РњР±РёС‚/СЃ вЂ” СЃС‚Р°Р±РёР»СЊРЅРѕ РґР»СЏ СЃР»Р°Р±РѕРіРѕ РёРЅС‚РµСЂРЅРµС‚Р°.",
-            Mode::GameStream => "1080p60, 6 РњР±РёС‚/СЃ, РєР»СЋС‡РµРІРѕР№ РєР°РґСЂ РєР°Р¶РґС‹Рµ 2 СЃРµРєСѓРЅРґС‹.",
-            Mode::Ai => "1080p30, СѓРїРѕСЂ РЅР° С‡РёС‚Р°РµРјРѕСЃС‚СЊ РєРѕРґР° Рё С‚Р°Р±Р»РёС† РІ РґР»РёРЅРЅС‹С… СЃРµСЃСЃРёСЏС….",
-            Mode::AiStream => "1080p30, 5 РњР±РёС‚/СЃ вЂ” СЃРєСЂРёРЅРєР°СЃС‚ РЅРµР№СЂРѕСЃРµС‚РµР№ Рё С‡Р°С‚РѕРІ.",
+            Mode::Game => "1080p60, быстрое кодирование, низкая задержка для динамичных игр.",
+            Mode::Work => "720p30, статичный текст: tune stillimage, низкий битрейт для слабого CPU.",
+            Mode::WorkStream => "900p30, 3 500 кбит/с — стабильно на слабом интернете.",
+            Mode::GameStream => "1080p60, 6 000 кбит/с, ключевой кадр 2 секунды.",
+            Mode::Ai => "1080p30, текст и таблицы, долгие сессии скринкастов нейросетей.",
+            Mode::AiStream => "1080p30, 5 000 кбит/с — скринкаст нейросетей.",
         }
     }
 
     fn preset(self) -> ModePreset {
+        // Оптимизировано для слабого железа (AMD A4-9120 + Radeon R3, 2 ядра):
+        // 720p по умолчанию, preset ultrafast, низкий битрейт.
         match self {
             Mode::Game => ModePreset {
-                width: 1920,
-                height: 1080,
+                width: 1280,
+                height: 720,
                 fps: 60,
-                bitrate_kbps: 12_000,
-                x264_preset: "superfast",
+                bitrate_kbps: 4_000,
+                x264_preset: "ultrafast",
                 tune: None,
             },
             Mode::Work => ModePreset {
-                width: 1920,
-                height: 1080,
+                width: 1280,
+                height: 720,
                 fps: 30,
-                bitrate_kbps: 6_000,
-                x264_preset: "veryfast",
+                bitrate_kbps: 2_500,
+                x264_preset: "ultrafast",
                 tune: Some("stillimage"),
             },
             Mode::WorkStream => ModePreset {
-                width: 1600,
-                height: 900,
+                width: 960,
+                height: 540,
                 fps: 30,
-                bitrate_kbps: 3_500,
-                x264_preset: "veryfast",
+                bitrate_kbps: 2_000,
+                x264_preset: "ultrafast",
                 tune: Some("stillimage"),
             },
             Mode::GameStream => ModePreset {
-                width: 1920,
-                height: 1080,
-                fps: 60,
-                bitrate_kbps: 6_000,
-                x264_preset: "superfast",
+                width: 1280,
+                height: 720,
+                fps: 30,
+                bitrate_kbps: 3_000,
+                x264_preset: "ultrafast",
                 tune: None,
             },
             Mode::Ai => ModePreset {
-                width: 1920,
-                height: 1080,
+                width: 1280,
+                height: 720,
                 fps: 30,
-                bitrate_kbps: 7_000,
-                x264_preset: "veryfast",
+                bitrate_kbps: 3_000,
+                x264_preset: "ultrafast",
                 tune: Some("stillimage"),
             },
             Mode::AiStream => ModePreset {
-                width: 1920,
-                height: 1080,
+                width: 1280,
+                height: 720,
                 fps: 30,
-                bitrate_kbps: 5_000,
-                x264_preset: "veryfast",
+                bitrate_kbps: 2_500,
+                x264_preset: "ultrafast",
                 tune: Some("stillimage"),
             },
         }
@@ -342,7 +350,7 @@ impl Mode {
 }
 
 // ---------------------------------------------------------------------------
-// РќР°СЃС‚СЂРѕР№РєРё РІС‹РІРѕРґР°
+// Кодировщики, контейнеры, способы захвата
 // ---------------------------------------------------------------------------
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Debug)]
@@ -386,11 +394,13 @@ impl Encoder {
 
     pub fn hint(self) -> &'static str {
         match self {
-            Encoder::X264 => "Р Р°Р±РѕС‚Р°РµС‚ РІСЃРµРіРґР°. РќР° СЃР»Р°Р±РѕРј CPU СЃС‚Р°РІСЊС‚Рµ preset ultrafast.",
-            Encoder::Nvenc => "РџРѕС‡С‚Рё РЅРµ РіСЂСѓР·РёС‚ РїСЂРѕС†РµСЃСЃРѕСЂ, РЅСѓР¶РЅР° РІРёРґРµРѕРєР°СЂС‚Р° NVIDIA.",
-            Encoder::Qsv => "РђРїРїР°СЂР°С‚РЅС‹Р№ Intel, С…РѕСЂРѕС€Рѕ РґР»СЏ РЅРѕСѓС‚Р±СѓРєРѕРІ Рё РјРёРЅРё-РџРљ.",
-            Encoder::Amf => "РђРїРїР°СЂР°С‚РЅС‹Р№ AMD, РґСЂР°Р№РІРµСЂ Adrenalin.",
-            Encoder::Vaapi => "Linux, /dev/dri/renderD128, РЅСѓР¶РµРЅ ffmpeg СЃ VAAPI.",
+            Encoder::X264 => {
+                "Нагрузка на процессор. Для слабого CPU используйте preset ultrafast."
+            }
+            Encoder::Nvenc => "Аппаратный кодировщик NVIDIA, почти без нагрузки на CPU.",
+            Encoder::Qsv => "Intel Quick Sync, кодирование на видеоядре.",
+            Encoder::Amf => "AMD AMF, кодирование на видеоядре Adrenalin.",
+            Encoder::Vaapi => "Linux, /dev/dri/renderD128, ffmpeg с VAAPI.",
         }
     }
 }
@@ -405,8 +415,8 @@ pub enum Container {
 impl Container {
     pub fn label(self) -> &'static str {
         match self {
-            Container::Mkv => "MKV (СѓСЃС‚РѕР№С‡РёРІ Рє РїР°РґРµРЅРёСЋ)",
-            Container::Mp4 => "MP4 (СЃРѕРІРјРµСЃС‚РёРј РІРµР·РґРµ)",
+            Container::Mkv => "MKV (устойчив к обрыву записи)",
+            Container::Mp4 => "MP4 (быстро открывается после записи)",
         }
     }
 
@@ -444,9 +454,9 @@ impl CaptureEngine {
 
     pub fn label(self) -> &'static str {
         match self {
-            CaptureEngine::Auto => "РђРІС‚Рѕ",
+            CaptureEngine::Auto => "Авто",
             CaptureEngine::Dxgi => "DXGI Desktop Duplication (GPU)",
-            CaptureEngine::Gdi => "GDI (СЃРѕРІРјРµСЃС‚РёРјРѕ СЃРѕ РІСЃРµРј)",
+            CaptureEngine::Gdi => "GDI (больше нагрузки на процессор)",
             CaptureEngine::X11 => "X11 / XShm",
         }
     }
@@ -454,11 +464,11 @@ impl CaptureEngine {
     pub fn hint(self) -> &'static str {
         match self {
             CaptureEngine::Auto => {
-                "DXGI, РµСЃР»Рё ffmpeg РµРіРѕ СѓРјРµРµС‚, РёРЅР°С‡Рµ GDI. РќР° Linux вЂ” X11."
+                "DXGI, если ffmpeg его поддерживает, иначе GDI. Под Linux — X11."
             }
-            CaptureEngine::Dxgi => "РЎР°РјС‹Р№ РґРµС€С‘РІС‹Р№ Р·Р°С…РІР°С‚ РЅР° Windows: РєР°РґСЂС‹ Р·Р°Р±РёСЂР°РµС‚ GPU.",
-            CaptureEngine::Gdi => "Р Р°Р±РѕС‚Р°РµС‚ РІСЃРµРіРґР°, РЅРѕ Р·Р°РјРµС‚РЅРѕ РіСЂСѓР·РёС‚ CPU РЅР° СЃР»Р°Р±С‹С… РјР°С€РёРЅР°С….",
-            CaptureEngine::X11 => "Linux СЃ X11. Wayland-СЃРµСЃСЃРёРё С‚СЂРµР±СѓСЋС‚ XWayland.",
+            CaptureEngine::Dxgi => "Без нагрузки на процессор, кадры с GPU (Windows).",
+            CaptureEngine::Gdi => "Нагрузка на процессор, работает на любом железе.",
+            CaptureEngine::X11 => "Linux через X11. Wayland работает только через XWayland.",
         }
     }
 
@@ -493,7 +503,7 @@ impl Platform {
             Platform::Twitch => "Twitch",
             Platform::YouTube => "YouTube",
             Platform::Kick => "Kick",
-            Platform::Custom => "РЎРІРѕР№ RTMP",
+            Platform::Custom => "Свой RTMP",
         }
     }
 
@@ -543,11 +553,11 @@ impl StreamTarget {
     pub fn masked_key(&self) -> String {
         let key = self.key.trim();
         if key.is_empty() {
-            "РєР»СЋС‡ РЅРµ Р·Р°РґР°РЅ".to_string()
+            "Ключ не задан".to_string()
         } else if key.len() <= 8 {
-            "вЂў".repeat(key.len())
+            "·".repeat(key.len())
         } else {
-            format!("{}вЂўвЂўвЂўвЂў{}", &key[..4], &key[key.len() - 4..])
+            format!("{}····{}", &key[..4], &key[key.len() - 4..])
         }
     }
 }
@@ -585,12 +595,12 @@ impl Default for Settings {
             x264_preset: preset.x264_preset.to_string(),
             container: Container::Mkv,
             capture_engine: CaptureEngine::Auto,
-            preview_enabled: true,
+            preview_enabled: false,
             output_dir: default_output_dir(),
             audio_bitrate_kbps: 128,
             keyframe_sec: 2,
             stream_targets: vec![StreamTarget::default()],
-            active_target: Some(1),
+            active_target: Some(0),
         }
     }
 }
